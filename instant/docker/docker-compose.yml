@@ -70,7 +70,7 @@ services:
       - app__core__path=/src/gofr-backend/lib
       - app__installed=${false}
       - app__idp=gofr
-      - keycloak__baseURL=http://keycloak:8084/auth
+      #- keycloak__baseURL=http://keycloak:8084/auth
       - REDIS_HOST=redis
     ports:
       - "4000:4000"
