@@ -12,7 +12,18 @@ services:
 #     environment:
 #       - KEYCLOAK_USER=admin
 #       - KEYCLOAK_PASSWORD=admin
-      
+
+  postgres:
+    image: postgres:15
+    container_name: gofr-postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=gofr
+      - POSTGRES_USER=gofr_user
+      - POSTGRES_PASSWORD=gofr_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   redis:
     image: redis:alpine
     command: ["redis-server", "--appendonly", "yes"]
@@ -59,9 +70,11 @@ services:
     image: intrahealth/gofr:latest
     depends_on:
       - fhir
+      - postgres
     environment:
       # use gofr for authn/authz which is default
       # - app__idp=keycloak
+      - DATABASE_URL=postgres://gofr_user:gofr_pass@postgres:5432/gofr
       - mCSD__server__protocal=http
       - mCSD__server__host=fhir
       - mCSD__server__port=8080
@@ -72,6 +85,9 @@ services:
       - app__idp=gofr
       #- keycloak__baseURL=http://keycloak:8084/auth
       - REDIS_HOST=redis
+      - JWT_SECRET=supersecreto
+      - DEFAULT_ADMIN_USERNAME=admin
+      - DEFAULT_ADMIN_PASSWORD=changeme
     ports:
       - "4000:4000"
     restart: always
@@ -84,5 +100,6 @@ networks:
 
 
 volumes:
+  postgres_data:
   redis-data:
   hapi-data:
